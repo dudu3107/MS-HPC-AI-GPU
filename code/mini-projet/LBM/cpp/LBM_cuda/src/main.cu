@@ -1,11 +1,13 @@
 #include <cstdlib>
 #include <string>
 #include <iostream>
+#include <fstream>
 
 // =========================
 // CUDA imports 
 // =========================
 #include <cuda_runtime.h>
+#include "utils/monitoring/CudaTimer.h"
 
 
 #include "lbm/LBMSolver.h" 
@@ -26,9 +28,20 @@ int main(int argc, char* argv[])
   // print parameters on screen
   params.print();
 
+  CudaTimer gpu_timer;
+  gpu_timer.start();
+
   LBMSolver* solver = new LBMSolver(params);
 
   solver->run();
+
+  gpu_timer.stop();
+  float gpu_time = gpu_timer.elapsed();
+  //printf("time: %f\n", gpu_time);
+  
+  std::ofstream outfile;
+  outfile.open("BenchmarkGPU.log", std::ios_base::app);
+  outfile << "GPU time: " << gpu_time << "  nx: " << params.nx << "  ny: " << params.ny << std::endl;
 
   delete solver;
 

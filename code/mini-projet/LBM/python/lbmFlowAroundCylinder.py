@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 
 ###### Flow definition #################################################
-maxIter = 200000  # Total number of time iterations.
+maxIter = 200#200000  # Total number of time iterations.
 Re = 150.0         # Reynolds number.
 nx, ny = 420, 180 # Numer of lattice nodes.
 ly = ny-1         # Height of the domain in lattice units.
@@ -34,8 +34,8 @@ omega = 1 / (3*nulb+0.5);    # Relaxation parameter.
 
 ###### Lattice Constants ###############################################
 v = np.array([ [ 1,  1], [ 1,  0], [ 1, -1], [ 0,  1], [ 0,  0],
-               [ 0, -1], [-1,  1], [-1,  0], [-1, -1] ])
-t = np.array([ 1/36, 1/9, 1/36, 1/9, 4/9, 1/9, 1/36, 1/9, 1/36])
+               [ 0, -1], [-1,  1], [-1,  0], [-1, -1] ])  # 9 directions of gaz displacements at each position
+t = np.array([ 1/36, 1/9, 1/36, 1/9, 4/9, 1/9, 1/36, 1/9, 1/36])  # Wheights
 
 col1 = np.array([0, 1, 2])
 col2 = np.array([3, 4, 5])
@@ -66,7 +66,7 @@ def macroscopic(fin):
     u /= rho
     return rho, u
 
-def equilibrium(rho, u):
+def equilibrium(rho, u):  # rho density, u vector of speed
     """Equilibrium distribution function.
     """
     usqr = 3/2 * (u[0]**2 + u[1]**2)
@@ -101,10 +101,10 @@ def main():
 
     # Initialization of the populations at equilibrium 
     # with the given velocity.
-    fin = equilibrium(1, vel)
+    fin = equilibrium(1, vel)  # it's a 3d array: ( direction of displacement of position, x, y)
 
     ###### Main time loop ########
-    for time in range(maxIter):
+    for time in range(maxIter):  # boucle temporel où on enchaine les noyeux des calculs
 
         # Right wall: outflow condition.
         # we only need here to specify distrib. function for velocities
@@ -128,19 +128,21 @@ def main():
 
         # Bounce-back condition for obstacle.
         # in python language, we "slice" fout by obstacle
-        for i in range(9):
+        for i in range(9):  
             fout[i, obstacle] = fin[8-i, obstacle]
 
-        # Streaming step.
-        for i in range(9):
+        # Streaming step.  # replace this with cupy or numba or replace for a strong loop and then create coumputiong nodes
+        for i in range(9):  # i is a scalar to represent the direction
             fin[i,:,:] = np.roll(np.roll(fout[i,:,:], v[i,0], axis=0),
                                  v[i,1], axis=1 )
  
-        # Visualization of the velocity.
+        # Visualization of the velocity.  # output du code
         if (time%100==0):
             plt.clf()
             plt.imshow(np.sqrt(u[0]**2+u[1]**2).transpose(), cmap=cm.Reds)
             plt.savefig("vel.{0:04d}.png".format(time//100))
+
+        # We have to make the functions to compare the time of the calculations without image generation!
 
 if __name__ == "__main__":
     # execute only if run as a script

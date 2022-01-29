@@ -25,6 +25,7 @@ target_link_libraries(lbmFlowAroundCylinder
   lbm::core
   lbm::config
   lbm::lodepng
-  lbm::vtk)
+  lbm::vtk
+  lbm::common)
 
 configure_file(flowAroundCylinder.ini flowAroundCylinder.ini COPYONLY)

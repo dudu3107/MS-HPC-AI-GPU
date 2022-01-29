@@ -1,5 +1,5 @@
 add_library(lbmMonitoring "")
-target_sources(lbmMonitoring PRIVATE
+target_sources(lbmMonitoring PUBLIC
   OpenMPTimer.cpp
   SimpleTimer.cpp)
 

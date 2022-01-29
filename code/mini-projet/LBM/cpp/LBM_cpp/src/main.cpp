@@ -1,8 +1,10 @@
 #include <cstdlib>
 #include <string>
 #include <iostream>
+#include <fstream>
 
 #include "lbm/LBMSolver.h" 
+#include "utils/monitoring/SimpleTimer.h"
 
 // TODO : uncomment when building with OpenACC
 //#include "utils/openacc_utils.h"
@@ -28,9 +30,20 @@ int main(int argc, char* argv[])
   // print parameters on screen
   params.print();
 
+  SimpleTimer simple_timer;
+
   LBMSolver* solver = new LBMSolver(params);
 
   solver->run();
+
+  simple_timer.stop();
+  float sequencial_time = simple_timer.elapsed();
+  printf("time: %f\n", sequencial_time);
+
+  std::ofstream outfile;
+  outfile.open("BenchmarkSimple.log", std::ios_base::app);
+  outfile << "Simple time: " << sequencial_time << "  nx: " << params.nx << "  ny: " << params.ny << std::endl;
+
 
   delete solver;
 

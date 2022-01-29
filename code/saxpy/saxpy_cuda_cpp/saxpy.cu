@@ -60,10 +60,10 @@ void saxpy_openmp(int n, float alpha,
                   const float * x, float * y)
 {
   
-  #pragma omp parallel for
+  #pragma omp parallel for num_threads(8)
   #pragma ivdep
   for (size_t i=0; i<n; i++)
-    y[i] = alpha*x[i] + y[i];
+    y[i] = alpha*x[i] + y[i]; //ivdep to avoid x and y to be confused
 }
 
 

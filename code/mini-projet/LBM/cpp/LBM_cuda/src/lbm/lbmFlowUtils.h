@@ -101,11 +101,13 @@ void initialize_macroscopic_variables(const LBMParams &params,
  */
 void border_outflow(const LBMParams &params, real_t *fin_d);
 
+
 /**
  * border condition : inflow on the left interface
  */
 void border_inflow(const LBMParams &params, const real_t *fin_d, 
                    real_t *rho_d, real_t *ux_d, real_t *uy_d);
+
 
 /**
  * Update fin at inflow left border.

@@ -53,9 +53,9 @@
 __global__ void add( int *a, int *b, int *c, int n )
 {
 
-  int i = /*  TODO */
+  int i = threadIdx.x + blockIdx.x*blockDim.x;
 
-  if ( /* TODO */ )
+  if ( i < n)
     c[i] = a[i] + b[i];
 
 } // add
@@ -84,9 +84,13 @@ int main( int argc, char* argv[] )
   }
 
   // GPU device memory allocation / initialization
-  CUDA_API_CHECK( cudaMalloc( /* TODO */ ) );
+  CUDA_API_CHECK( cudaMalloc( (void**)&dev_a, N*sizeof(int) ) );
+  CUDA_API_CHECK( cudaMalloc( (void**)&dev_b, N*sizeof(int) ) );
+  CUDA_API_CHECK( cudaMalloc( (void**)&dev_c, N*sizeof(int) ) );
 
-  CUDA_API_CHECK( cudaMemcpy( /* TODO */ );
+  CUDA_API_CHECK( cudaMemcpy( dev_a, a, N*sizeof(int), cudaMemcpyHostToDevice) );
+  CUDA_API_CHECK( cudaMemcpy( dev_b, b, N*sizeof(int), cudaMemcpyHostToDevice) );
+  //CUDA_API_CHECK( cudaMemcpy( dev_c, c, N*sizeof(int), cudaMemcpyHostToDevice);
   
   // perform computation on GPU
   int nbThreadsPerBlock = 8;
@@ -96,7 +100,7 @@ int main( int argc, char* argv[] )
   CUDA_KERNEL_CHECK("add");
 
   // get back computation result into host CPU memory
-  CUDA_API_CHECK( /* TODO */ );
+  CUDA_API_CHECK( cudaMemcpy( c, dev_c, N*sizeof(int), cudaMemcpyDeviceToHost));
 
   // output result on screen
   int passed=1;
@@ -118,7 +122,9 @@ int main( int argc, char* argv[] )
   free(a);
 
   // de-allocate GPU device memory
-  CUDA_API_CHECK( cudaFree( /* TODO */ ) );
+  CUDA_API_CHECK( cudaFree( dev_a ) );
+  CUDA_API_CHECK( cudaFree( dev_b ) );
+  CUDA_API_CHECK( cudaFree( dev_c ) );
 
   return EXIT_SUCCESS;
 }

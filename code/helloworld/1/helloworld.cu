@@ -11,6 +11,6 @@ __global__ void print_from_gpu(void) {
 int main(int argc, char* argv[]) {
   printf("Hello from CPU !\n");
   print_from_gpu<<<1,1>>>();
-  cudaDeviceSynchronize();
+  //cudaDeviceSynchronize();
   return EXIT_SUCCESS;
 }

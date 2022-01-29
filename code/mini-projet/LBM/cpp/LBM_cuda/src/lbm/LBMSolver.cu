@@ -23,8 +23,28 @@ LBMSolver::LBMSolver(const LBMParams& params) :
   const int npop = LBMParams::npop;
 
   // memory allocations
-
   // TODO
+  // distribution functions
+
+  fin  = (real_t*) malloc(nx*ny*npop * sizeof(real_t));
+  fout = (real_t*) malloc(nx*ny*npop * sizeof(real_t));
+  feq  = (real_t*) malloc(nx*ny*npop * sizeof(real_t));
+  CUDA_API_CHECK( cudaMalloc( (void**)&fin_d, nx*ny*npop*sizeof(real_t) ) );
+  CUDA_API_CHECK( cudaMalloc( (void**)&fout_d, nx*ny*npop*sizeof(real_t) ) );
+  CUDA_API_CHECK( cudaMalloc( (void**)&feq_d, nx*ny*npop*sizeof(real_t) ) );
+  // I didn't initialize obstacle and obstacle_d
+
+  // macroscopic variables
+  rho = (real_t*) malloc(nx*ny * sizeof(real_t));
+  ux  = (real_t*) malloc(nx*ny * sizeof(real_t));
+  uy  = (real_t*) malloc(nx*ny * sizeof(real_t));
+  CUDA_API_CHECK( cudaMalloc( (void**)&rho_d, nx*ny*sizeof(real_t) ) );
+  CUDA_API_CHECK( cudaMalloc( (void**)&ux_d, nx*ny*sizeof(real_t) ) );
+  CUDA_API_CHECK( cudaMalloc( (void**)&uy_d, nx*ny*sizeof(real_t) ) );
+
+  // obstacle
+  obstacle = (int *) malloc(nx*ny * sizeof(int));
+  CUDA_API_CHECK( cudaMalloc( (void**)&obstacle_d, nx*ny*sizeof(int) ) );
 
 } // LBMSolver::LBMSolver
 
@@ -33,8 +53,27 @@ LBMSolver::LBMSolver(const LBMParams& params) :
 LBMSolver::~LBMSolver()
 {
   // free memory
+  // TODO error in using cudaFree? https://stackoverflow.com/questions/35815597/cuda-call-fails-in-destructor
 
-  // TODO
+  // distribution functions
+    delete[] fin;
+    delete[] fout;
+    delete[] feq;
+    CUDA_API_CHECK( cudaFree( fin_d ) );
+    CUDA_API_CHECK( cudaFree( fout_d ) );
+    CUDA_API_CHECK( cudaFree( feq_d ) );
+
+    // macroscopic variables
+    delete[] rho;
+    delete[] ux;
+    delete[] uy;
+    CUDA_API_CHECK( cudaFree( rho_d ) );
+    CUDA_API_CHECK( cudaFree( ux_d ) );
+    CUDA_API_CHECK( cudaFree( uy_d ) );
+
+    // obstacle
+    delete[] obstacle;
+    CUDA_API_CHECK( cudaFree( obstacle_d ) );
 
 } // LBMSolver::~LBMSolver
 
@@ -68,9 +107,9 @@ void LBMSolver::run()
   // time loop
   for (int iTime=0; iTime<params.maxIter; ++iTime) {
 
-    if (iTime % 100 == 0) {
+    if (iTime % 10000 == 0) {
       //output_png(iTime);
-      output_vtk(iTime);
+      //output_vtk(iTime);
     }
 
     // Right wall: outflow condition.
@@ -113,6 +152,8 @@ void LBMSolver::output_png(int iTime)
   const int ny = params.ny;
 
   // TODO : copy data device to host
+  CUDA_API_CHECK( cudaMemcpy( ux, ux_d, nx*ny*sizeof(real_t), cudaMemcpyDeviceToHost ) );
+  CUDA_API_CHECK( cudaMemcpy( uy, uy_d, nx*ny*sizeof(real_t), cudaMemcpyDeviceToHost ) );
 
   real_t* u2 = (real_t *) malloc(nx*ny*sizeof(real_t));
 
@@ -179,8 +220,13 @@ void LBMSolver::output_vtk(int iTime)
   std::cout << "Output data (VTK) at time " << iTime << "\n";
 
   bool useAscii = false; // binary data leads to smaller files
+  const int nx = params.nx;
+  const int ny = params.ny;
 
   // TODO : copy data device to host  
+  CUDA_API_CHECK( cudaMemcpy( rho, rho_d, nx*ny*sizeof(real_t), cudaMemcpyDeviceToHost ) );
+  CUDA_API_CHECK( cudaMemcpy( ux, ux_d, nx*ny*sizeof(real_t), cudaMemcpyDeviceToHost ) );
+  CUDA_API_CHECK( cudaMemcpy( uy, uy_d, nx*ny*sizeof(real_t), cudaMemcpyDeviceToHost ) );
 
   saveVTK(rho, ux, uy, params, useAscii, iTime);
 

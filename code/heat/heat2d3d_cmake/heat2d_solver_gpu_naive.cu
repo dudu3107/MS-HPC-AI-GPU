@@ -125,21 +125,19 @@ runTest(int argc, char** argv)
   real_t* d_data2;
 
   // device memory allocation (using cudaMalloc)
-  /* 
-   * TODO
-   */
+  CUDA_API_CHECK( cudaMalloc( (void**)&d_data1, N*sizeof(real_t) ) );
+  CUDA_API_CHECK( cudaMalloc( (void**)&d_data2, N*sizeof(real_t) ) );
 
   // copy host memory to device
-  /*
-   * TODO
-   */
+  CUDA_API_CHECK( cudaMemcpy( d_data1, data_1, N*sizeof(real_t), cudaMemcpyHostToDevice) );
+  //CUDA_API_CHECK( cudaMemcpy( d_data2, data_2, N*sizeof(real_t), cudaMemcpyHostToDevice) );
     
    
   // setup execution parameters for cuda kernel
   // grid dimension for naive kernel
   unsigned int threadsPerBlockX=16;
   unsigned int threadsPerBlockY=16;
-  dim3  threads(/* TODO */);
+  dim3  threads(4, 4);
   dim3  grid(/* TODO */);
     
   printf("grid  size : %u %u\n",grid.x,grid.y);
