@@ -1,5 +1,7 @@
 # MS-HPC-AI-GPU
 
+A project for the Specialized Master in HPC-AI from Mines Paris. The project consisted in using CUDA-GPU to parallelize a LBM simulation: the classical flow around a cylinder. The part developed by me is in code/mini-projet/LBM/cpp/LBM_cuda/src/lbm, and the rest of the couse and project instructions can be found in the rest of the repository (in french).
+
 Resources pour le cours d'introduction à la programmation des GPUs du [mastère spécialisé HPC-AI](https://www.hpc-ai.mines-paristech.fr/)
 
 ## biblio
